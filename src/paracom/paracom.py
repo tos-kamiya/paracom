@@ -14,9 +14,10 @@ except:
 
 MODEL: str = "gemma3:12b"
 NUM_CTX: int = 10000
+TARGET_PARAGRAPH_LENGTH: int = 400
 
 
-def split_long_line_by_llm(line: str, max_length: int = 400) -> List[str]:
+def split_long_line_by_llm(line: str, max_length: int = 200) -> List[str]:
     """
     Use the LLM to split a line longer than max_length into segments.
     Splits are made at appropriate sentence boundaries so that each segment is within max_length.
@@ -40,7 +41,7 @@ def split_long_line_by_llm(line: str, max_length: int = 400) -> List[str]:
     return segments
 
 
-def process_lines(lines: List[str], max_length: int = 400) -> List[str]:
+def process_lines(lines: List[str], max_length: int = 200) -> List[str]:
     """
     For each line in the input list, if it exceeds max_length, use the LLM to split it.
     Returns a list of processed lines.
@@ -136,7 +137,7 @@ def detect_conversation_turns_single(
         prompt = (
             "Identify the starting lines of paragraphs in the following conversation transcript.\n"
             "Exclude lines that cover the same topic as the previous line.\n"
-            "Ensure each paragraph has approximately 400 characters and do not make paragraphs that are too short.\n"
+            f"Ensure each paragraph has approximately {TARGET_PARAGRAPH_LENGTH} characters and do not make paragraphs that are too short.\n"
             "No explanations needed.\n"
             "Output a comma-separated list of line numbers.\n"
             "For example, if lines 15, 19, and 22 are suitable as the starting lines of paragraphs, output them as:\n"
@@ -240,8 +241,8 @@ def main() -> None:
         except Exception as e:
             sys.exit(f"Error reading input file: {e}")
 
-    # Process long lines using the LLM if they exceed 400 characters.
-    processed_lines = process_lines(input_lines, max_length=400)
+    # Process long lines using the LLM if they exceed 200 characters.
+    processed_lines = process_lines(input_lines, max_length=200)
 
     # Run detection trials (default is 1 trial; if more than 1, merge results)
     if args.trials <= 1:
