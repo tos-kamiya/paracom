@@ -224,7 +224,7 @@ def main() -> None:
         "-O",
         "--auto-output",
         action="store_true",
-        help="Automatically generate an output file name based on the input file name (appends '_paracom').",
+        help="Automatically generate an output file name based on the input file name (appends '-paracom').",
     )
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + __version__
@@ -279,7 +279,7 @@ def main() -> None:
         sys.exit("Error: Cannot use -O/--auto-output when reading from standard input.")
     if args.auto_output:
         base, ext = os.path.splitext(args.input_file)
-        output_filename = f"{base}_paracom{ext if ext else '.txt'}"
+        output_filename = f"{base}-paracom{ext if ext else '.txt'}"
     elif args.output:
         output_filename = args.output
     else:
