@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "paracom"
+dynamic = ["version"]
+description = 'Use an LLM to detect conversation turns in a transcript and insert blank lines as paragraph breaks.'
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Toshihiro Kamiya", email = "kamiya@mbj.nifty.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+  "ollama",
+  "tqdm",
+]
+
+[tool.hatch.version]
+path = "src/paracom/__about__.py"
+
+[project.scripts]
+paracom = "paracom:main"
+
+[project.urls]
+repository = "https://github.com/tos-kamiya/transl8"
