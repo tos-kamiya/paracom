@@ -6,6 +6,7 @@ from collections import Counter
 from typing import List, Tuple, Optional
 
 from ollama import chat, ChatResponse
+from tqdm import tqdm
 
 try:
     from .__about__ import __version__
@@ -15,6 +16,7 @@ except:
 MODEL: str = "gemma3:12b"
 NUM_CTX: int = 10000
 TARGET_PARAGRAPH_LENGTH: int = 400
+MAX_SINGLE_LINE_LENGTH: int = 200
 
 
 def split_long_line_by_llm(line: str, max_length: int = 200) -> List[str]:
@@ -41,11 +43,20 @@ def split_long_line_by_llm(line: str, max_length: int = 200) -> List[str]:
     return segments
 
 
-def process_lines(lines: List[str], max_length: int = 200) -> List[str]:
+def process_lines(lines: List[str], max_length: int = 200, verbose: bool = False) -> List[str]:
     """
     For each line in the input list, if it exceeds max_length, use the LLM to split it.
     Returns a list of processed lines.
     """
+
+    if verbose:
+        print("Info: Splitting long lines", file=sys.stderr)
+        count_split_tasks = len(list(line for line in lines if len(line) > max_length))
+        bar = tqdm(total=count_split_tasks)
+    else:
+        bar = None
+
+    done = 0
     processed: List[str] = []
     for line in lines:
         if len(line) <= max_length:
@@ -53,6 +64,11 @@ def process_lines(lines: List[str], max_length: int = 200) -> List[str]:
         else:
             segments: List[str] = split_long_line_by_llm(line, max_length)
             processed.extend(segments)
+            done += 1
+            if bar is not None:
+                bar.update(done)
+    if bar is not None:
+        bar.close()
     return processed
 
 
@@ -110,8 +126,6 @@ def detect_conversation_turns_single(
     detected_turns: set[int] = set()
 
     if verbose:
-        from tqdm import tqdm
-
         window_iter = tqdm(enumerate(windows), total=len(windows))
     else:
         window_iter = enumerate(windows)
@@ -204,13 +218,13 @@ def main() -> None:
         "input_file", help="Input text file (use '-' to read from standard input)"
     )
     parser.add_argument(
-        "--skip-line-prefix",
+        "-p", "--skip-line-prefix",
         action="append",
         default=[],
         help="Line prefix to exclude from detection. Can be specified multiple times.",
     )
     parser.add_argument(
-        "--trials",
+        "-t", "--trials",
         type=int,
         default=1,
         help="Number of detection trials to run (default is 1; use 5 to merge results from 5 runs).",
@@ -241,8 +255,8 @@ def main() -> None:
         except Exception as e:
             sys.exit(f"Error reading input file: {e}")
 
-    # Process long lines using the LLM if they exceed 200 characters.
-    processed_lines = process_lines(input_lines, max_length=200)
+    # Process long lines using the LLM if they exceed MAX_SINGLE_LINE_LENGTH characters.
+    processed_lines = process_lines(input_lines, max_length=MAX_SINGLE_LINE_LENGTH, verbose=args.verbose)
 
     # Run detection trials (default is 1 trial; if more than 1, merge results)
     if args.trials <= 1:
