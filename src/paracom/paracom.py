@@ -43,18 +43,18 @@ def split_long_line_by_llm(line: str, max_length: int = 200) -> List[str]:
     return segments
 
 
-def process_lines(lines: List[str], max_length: int = 200, verbose: bool = False) -> List[str]:
+def split_long_lines(lines: List[str], max_length: int = 200, verbose: bool = False) -> List[str]:
     """
     For each line in the input list, if it exceeds max_length, use the LLM to split it.
     Returns a list of processed lines.
     """
 
+    bar = None
     if verbose:
-        print("Info: Splitting long lines", file=sys.stderr)
         count_split_tasks = len(list(line for line in lines if len(line) > max_length))
-        bar = tqdm(total=count_split_tasks)
-    else:
-        bar = None
+        if count_split_tasks > 0:
+            print("Info: Splitting long lines", file=sys.stderr)
+            bar = tqdm(total=count_split_tasks)
 
     done = 0
     processed: List[str] = []
@@ -256,7 +256,7 @@ def main() -> None:
             sys.exit(f"Error reading input file: {e}")
 
     # Process long lines using the LLM if they exceed MAX_SINGLE_LINE_LENGTH characters.
-    processed_lines = process_lines(input_lines, max_length=MAX_SINGLE_LINE_LENGTH, verbose=args.verbose)
+    processed_lines = split_long_lines(input_lines, max_length=MAX_SINGLE_LINE_LENGTH, verbose=args.verbose)
 
     # Run detection trials (default is 1 trial; if more than 1, merge results)
     if args.trials <= 1:
