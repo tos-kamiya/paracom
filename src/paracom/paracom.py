@@ -1,8 +1,8 @@
+import argparse
+from collections import Counter
+import os
 import re
 import sys
-import argparse
-import os
-from collections import Counter
 from typing import List, Tuple, Optional
 
 from ollama import chat, ChatResponse
@@ -15,7 +15,7 @@ except:
 
 MODEL: str = "gemma3:12b"
 NUM_CTX: int = 10000
-TARGET_PARAGRAPH_LENGTH: int = 400
+TARGET_PARAGRAPH_LENGTH: int = 800
 MAX_SINGLE_LINE_LENGTH: int = 200
 
 
@@ -81,19 +81,28 @@ def add_line_numbers(lines: List[str]) -> str:
 
 
 def split_nl_into_windows(
-    number_and_lines: List[Tuple[int, str]], window_size: int, overlap: int
+    number_and_lines: List[Tuple[int, str]], window_size: int, overlap: int,
+    hint_trial_progress: Optional[Tuple[int, int]] = None,
 ) -> List[List[Tuple[int, str]]]:
     """
     Split a list of (line_number, text) tuples into windows with the specified window_size and overlap.
     """
+
+    if hint_trial_progress is not None:
+        assert 0 <= hint_trial_progress[0] < hint_trial_progress[1]
+        first_window_size = (window_size - overlap) * (hint_trial_progress[0] + 1) // hint_trial_progress[1] + overlap
+        assert overlap <= first_window_size <= window_size
+    else:
+        first_window_size = window_size
     windows: List[List[Tuple[int, str]]] = []
     i: int = 0
     while i < len(number_and_lines):
-        window: List[Tuple[int, str]] = number_and_lines[i : i + window_size]
+        s = first_window_size if i == 0 else window_size
+        window: List[Tuple[int, str]] = number_and_lines[i : i + s]
         windows.append(window)
-        if i + window_size >= len(number_and_lines):
+        if i + s >= len(number_and_lines):
             break
-        i += window_size - overlap
+        i += s - overlap
     return windows
 
 
@@ -103,6 +112,7 @@ def detect_conversation_turns_single(
     overlap: int = 10,
     boundary_margin: int = 5,
     skip_line_prefixes: List[str] = [],
+    hint_trial_progress: Optional[Tuple[int, int]] = None,
     verbose: bool = False,
 ) -> List[int]:
     """
@@ -121,7 +131,7 @@ def detect_conversation_turns_single(
             filtered_number_and_lines.append((num, line))
 
     windows: List[List[Tuple[int, str]]] = split_nl_into_windows(
-        filtered_number_and_lines, window_size, overlap
+        filtered_number_and_lines, window_size, overlap, hint_trial_progress=hint_trial_progress
     )
     detected_turns: set[int] = set()
 
@@ -151,7 +161,7 @@ def detect_conversation_turns_single(
         prompt = (
             "Identify the starting lines of paragraphs in the following conversation transcript.\n"
             "Exclude lines that cover the same topic as the previous line.\n"
-            f"Ensure each paragraph has approximately {TARGET_PARAGRAPH_LENGTH} characters and do not make paragraphs that are too short.\n"
+            f"Ensure that each paragraph does not exceed an approximate upper limit of {TARGET_PARAGRAPH_LENGTH} characters and avoid creating paragraphs that are too short.\n"
             "No explanations needed.\n"
             "Output a comma-separated list of line numbers.\n"
             "For example, if lines 15, 19, and 22 are suitable as the starting lines of paragraphs, output them as:\n"
@@ -271,6 +281,7 @@ def main() -> None:
             trial = detect_conversation_turns_single(
                 processed_lines,
                 skip_line_prefixes=args.skip_line_prefix,
+                hint_trial_progress=(i, args.trials),
                 verbose=args.verbose,
             )
             trial_results.append(trial)
