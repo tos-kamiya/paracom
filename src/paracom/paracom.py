@@ -5,6 +5,7 @@ import re
 import sys
 from typing import List, Tuple, Optional
 
+from blingfire import text_to_sentences
 from ollama import chat, ChatResponse
 from tqdm import tqdm
 
@@ -19,56 +20,43 @@ TARGET_PARAGRAPH_LENGTH: int = 800
 MAX_SINGLE_LINE_LENGTH: int = 200
 
 
-def split_long_line_by_llm(line: str, max_length: int = 200) -> List[str]:
-    """
-    Use the LLM to split a line longer than max_length into segments.
-    Splits are made at appropriate sentence boundaries so that each segment is within max_length.
-    The LLM returns the segments as newline-separated text.
-    """
-    if len(line) <= max_length:
-        return [line]
-    prompt = (
-        f"Please divide the following text into segments of {max_length} characters or less. "
-        f"Ensure the divisions occur at appropriate sentence endings, and that each segment remains within the {max_length}-character limit.\n"
-        "Return the output as a text with each segment separated by a newline.\n\n"
-        f"{line}"
-    )
-    response: ChatResponse = chat(
-        model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        options={"num_ctx": NUM_CTX},
-    )
-    content: str = response["message"]["content"]
-    segments: List[str] = [seg.strip() for seg in content.splitlines() if seg.strip()]
-    return segments
+# def split_long_line_by_llm(line: str, max_length: int = 200) -> List[str]:
+#     """
+#     Use the LLM to split a line longer than max_length into segments.
+#     Splits are made at appropriate sentence boundaries so that each segment is within max_length.
+#     The LLM returns the segments as newline-separated text.
+#     """
+#     if len(line) <= max_length:
+#         return [line]
+#     prompt = (
+#         f"Please divide the following text into segments of {max_length} characters or less. "
+#         f"Ensure the divisions occur at appropriate sentence endings, and that each segment remains within the {max_length}-character limit.\n"
+#         "Return the output as a text with each segment separated by a newline.\n\n"
+#         f"{line}"
+#     )
+#     response: ChatResponse = chat(
+#         model=MODEL,
+#         messages=[{"role": "user", "content": prompt}],
+#         options={"num_ctx": NUM_CTX},
+#     )
+#     content: str = response["message"]["content"]
+#     segments: List[str] = [seg.strip() for seg in content.splitlines() if seg.strip()]
+#     return segments
 
 
 def split_long_lines(lines: List[str], max_length: int = 200, verbose: bool = False) -> List[str]:
     """
-    For each line in the input list, if it exceeds max_length, use the LLM to split it.
+    For each line in the input list, if it exceeds max_length, use `blingfire` to split it.
     Returns a list of processed lines.
     """
 
-    bar = None
-    if verbose:
-        count_split_tasks = len(list(line for line in lines if len(line) > max_length))
-        if count_split_tasks > 0:
-            print("Info: Splitting long lines", file=sys.stderr)
-            bar = tqdm(total=count_split_tasks)
-
-    done = 0
     processed: List[str] = []
     for line in lines:
         if len(line) <= max_length:
             processed.append(line)
         else:
-            segments: List[str] = split_long_line_by_llm(line, max_length)
+            segments: List[str] = text_to_sentences(line).strip().split("\n")
             processed.extend(segments)
-            done += 1
-            if bar is not None:
-                bar.update(done)
-    if bar is not None:
-        bar.close()
     return processed
 
 
