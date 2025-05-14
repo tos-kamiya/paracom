@@ -35,4 +35,4 @@ path = "src/paracom/__about__.py"
 paracom = "paracom:main"
 
 [project.urls]
-repository = "https://github.com/tos-kamiya/transl8"
+repository = "https://github.com/tos-kamiya/paracom"
