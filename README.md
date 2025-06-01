@@ -1,8 +1,8 @@
-# Paracom
+# pilcrow
 
-**Paracom** is a command-line tool that uses a Large Language Model (LLM) to recompose paragraphs from conversation transcripts. It detects the starting points of new paragraphs within a transcript and inserts blank lines to restructure the text into coherent paragraphs.
+**pilcrow** is a command-line tool that uses a Large Language Model (LLM) to recompose paragraphs from conversation transcripts. It detects the starting points of new paragraphs within a transcript and inserts blank lines to restructure the text into coherent paragraphs.
 
-Paracom was developed out of a need to improve the readability of audio transcript files. Often, conversation transcripts can be difficult to navigate because they lack proper paragraph breaks.
+pilcrow was developed out of a need to improve the readability of audio transcript files. Often, conversation transcripts can be difficult to navigate because they lack proper paragraph breaks.
 
 ## Features
 
@@ -13,54 +13,54 @@ Paracom was developed out of a need to improve the readability of audio transcri
 
 ## Installation
 
-Before installing and using Paracom, you must install [Ollama](https://ollama.com/) according to the instructions on the official Ollama website.
+Before installing and using pilcrow, you must install [Ollama](https://ollama.com/) according to the instructions on the official Ollama website.
 
-Then, you can install Paracom directly from GitHub using `pipx`:
+Then, you can install pilcrow directly from GitHub using `pipx`:
 
 ```bash
-pipx install git+https://github.com/tos-kamiya/paracom
+pipx install git+https://github.com/tos-kamiya/pilcrow
 ```
 
 Alternatively, use `pip` as follows:
 
 ```bash
-git clone https://github.com/tos-kamiya/paracom
-cd paracom
+git clone https://github.com/tos-kamiya/pilcrow
+cd pilcrow
 pip install .
 ```
 
 ## Usage
 
-After installation, you can run Paracom from the command line. Here are some usage examples:
+After installation, you can run pilcrow from the command line. Here are some usage examples:
 
 - **Basic Usage:**
 
   ```bash
-  paracom input.txt
+  pilcrow input.txt
   ```
 
 - **Using Standard Input:**
 
   ```bash
-  cat transcript.txt | paracom -
+  cat transcript.txt | pilcrow -
   ```
 
 - **Specifying Lines to Skip:**
 
   ```bash
-  paracom input.txt --skip-line-prefix="---" --skip-line-prefix="###"
+  pilcrow input.txt --skip-line-prefix="---" --skip-line-prefix="###"
   ```
 
 - **Multiple Detection Trials (e.g., 5 trials merged):**
 
   ```bash
-  paracom input.txt --trials 5
+  pilcrow input.txt --trials 5
   ```
 
 - **Verbose Logging:**
 
   ```bash
-  paracom input.txt --verbose
+  pilcrow input.txt --verbose
   ```
 
 - **Output File Options:**
@@ -68,13 +68,13 @@ After installation, you can run Paracom from the command line. Here are some usa
   Use `-o` to specify an output file name:
   
   ```bash
-  paracom input.txt -o output.txt
+  pilcrow input.txt -o output.txt
   ```
   
   Or use `-O` to automatically generate an output file name by appending `_modified` to the input file name (note: this option cannot be used when reading from standard input):
   
   ```bash
-  paracom input.txt -O
+  pilcrow input.txt -O
   ```
 
 ## Command-Line Options
