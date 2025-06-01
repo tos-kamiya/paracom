@@ -1,8 +1,10 @@
 # pilcrow
 
-**pilcrow** is a command-line tool that uses a Large Language Model (LLM) to recompose paragraphs from conversation transcripts. It detects the starting points of new paragraphs within a transcript and inserts blank lines to restructure the text into coherent paragraphs.
+**pilcrow** is a command-line tool that restructures long-form text into readable, well-organized paragraphs.
+It leverages a Large Language Model (LLM) to automatically detect the starting points of new paragraphs and inserts blank lines to improve the overall structure.
 
-pilcrow was developed out of a need to improve the readability of audio transcript files. Often, conversation transcripts can be difficult to navigate because they lack proper paragraph breaks.
+This tool was originally developed to address the readability issues commonly found in audio transcripts.
+Transcribed conversations often lack proper paragraph breaks, making them difficult to read.
 
 ## Features
 
