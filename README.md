@@ -71,7 +71,7 @@ After installation, you can run pilcrow from the command line. Here are some usa
   pilcrow input.txt -o output.txt
   ```
   
-  Or use `-O` to automatically generate an output file name by appending `_modified` to the input file name (note: this option cannot be used when reading from standard input):
+  Or use `-O` to automatically generate an output file name by appending `-pilcrow` to the input file name (note: this option cannot be used when reading from standard input):
   
   ```bash
   pilcrow input.txt -O
@@ -95,4 +95,4 @@ After installation, you can run pilcrow from the command line. Here are some usa
   Specify an explicit output file name.
 
 - **`-O/--auto-output`**  
-  Automatically generate an output file name based on the input file name (appends `_modified`). This option is mutually exclusive with `-o` and cannot be used when reading from standard input.
+  Automatically generate an output file name based on the input file name (appends `-pilcrow`). This option is mutually exclusive with `-o` and cannot be used when reading from standard input.
