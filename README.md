@@ -77,7 +77,7 @@ After installation, you can run pilcrow from the command line. Here are some usa
   pilcrow input.txt -O
   ```
 
-## Command-Line Options
+### Command-Line Arguments/Options
 
 - **`input_file`**  
   The input transcript file. Use `-` to read from standard input.
@@ -96,3 +96,34 @@ After installation, you can run pilcrow from the command line. Here are some usa
 
 - **`-O/--auto-output`**  
   Automatically generate an output file name based on the input file name (appends `-pilcrow`). This option is mutually exclusive with `-o` and cannot be used when reading from standard input.
+
+## Example
+
+An artificial developer memo created for demonstration purposes.
+
+```bash
+$ cat sample1-e.txt
+Finished refactoring the notification module. It's now using the new event bus interface. Had to update a few listeners to handle the async behavior properly. Also fixed the bug where scheduled jobs were firing twice after a redeploy, turned out to be a misconfigured cron setup in the container init script. Still debating whether to drop support for the legacy XML config files. It’s a pain to maintain but one client still relies on it. Need to double-check if the metrics collector is pushing to the right Prometheus endpoint. Grafana dashboard hasn't updated since last week. Planning to review PR #214 tomorrow morning, looks straightforward but want to confirm the rollback logic. Didn't get around to testing the mobile flow yet. Probably tomorrow.
+
+$ cat sample1-e.txt | pilcrow -
+
+Finished refactoring the notification module.
+It's now using the new event bus interface.
+Had to update a few listeners to handle the async behavior properly.
+Also fixed the bug where scheduled jobs were firing twice after a redeploy, turned out to be a misconfigured cron setup in the container init script.
+
+Still debating whether to drop support for the legacy XML config files.
+It’s a pain to maintain but one client still relies on it.
+Need to double-check if the metrics collector is pushing to the right Prometheus endpoint.
+Grafana dashboard hasn't updated since last week.
+
+Planning to review PR #214 tomorrow morning, looks straightforward but want to confirm the rollback logic.
+
+Didn't get around to testing the mobile flow yet.
+Probably tomorrow.
+```
+
+
+## License
+
+MIT
